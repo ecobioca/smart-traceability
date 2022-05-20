@@ -1,10 +1,12 @@
-# NFT Minter with Hardhat
+# Tracebility EVM Smart Contracts
 
-This project demonstrates an NFT mint use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
+This project enables traceability of supply chains using EVM smart contracts and comes with the smart contracts, a test for that contracts and a sample script that deploys that contract.
 
-The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply mint a new NFT.
+Suppliers can create products and their respective batches, recording the transactions of this batch on blockchain.
 
-The standard NFT used is the ERC1155 and the metadata must be stored in IPFS
+Each batch created represents a token. The standard token used is the ERC1155 NFT standard and all the metadata should be stored in IPFS.
+
+Each supplier can give permission to a list of managers' addresses to create and transact the batch, in addition to transferring it to other links in the chain.
 
 Install dependencies:
 
