@@ -12,11 +12,11 @@ contract Batchs is NFT, Products {
 
     // Define Tx model
     struct Tx {
-        bytes32 _currentTx;
-        bytes32 _previousTx;
+        uint256 _batchId;
         address _sender;
         string _receiver;
         uint256 _time;
+        bytes32 _previousTx;
     }
 
     // Define Batch model
@@ -27,12 +27,15 @@ contract Batchs is NFT, Products {
         string _metadataUri;
         uint256 _tokenId;
         uint256 _addTime;
-        mapping(uint256 => Tx) _txs;
+        bytes32[] _txs;
+        bytes32 _previousTx;
     }
 
-    mapping(uint256 => Tx) private _txs;
+    mapping(bytes32 => Tx) private _txs;
 
     mapping(uint256 => Batch) private _batchs;
+
+    event NewTx (bytes32 txId);
 
     modifier authorizedToAddBatch(uint256 productId, address managerAddr) {
         uint256 supplierId = getSupplierIdFromProduct(productId);
@@ -140,18 +143,26 @@ contract Batchs is NFT, Products {
     function addTx(
         uint256 batchId,
         string memory receiver,
-        string memory timestamp,
+        uint256 timestamp,
         bytes32 previousTx
     ) public authorizedToTransferBatch(batchId, msg.sender) {
+
+        require(previousTx == _batchs[batchId]._previousTx, "Invalid previous tx");
+
         bytes32 currentTx = keccak256(
-            abi.encodePacked(receiver, previousTx, timestamp)
+            abi.encodePacked(batchId, receiver, timestamp, previousTx)
         );
 
-        _txs[_numberOfTxs.current()]._currentTx = currentTx;
-        _txs[_numberOfTxs.current()]._previousTx = previousTx;
-        _txs[_numberOfTxs.current()]._sender = msg.sender;
-        _txs[_numberOfTxs.current()]._receiver = receiver;
-        _txs[_numberOfTxs.current()]._time = block.timestamp;
+        _txs[currentTx]._batchId = batchId;
+        _txs[currentTx]._sender = msg.sender;
+        _txs[currentTx]._receiver = receiver;
+        _txs[currentTx]._time = block.timestamp;
+        _txs[currentTx]._previousTx = previousTx;
+
+        _batchs[batchId]._txs.push(currentTx);
+        _batchs[batchId]._previousTx = currentTx;
+
+        emit NewTx (currentTx);
 
         _numberOfTxs.increment();
     }
@@ -161,7 +172,7 @@ contract Batchs is NFT, Products {
         uint256 batchId,
         string memory receiver,
         address receiverAddress,
-        string memory timestamp,
+        uint256 timestamp,
         bytes32 previousTx
     ) public authorizedToTransferBatch(batchId, msg.sender) {
         addTx(batchId, receiver, timestamp, previousTx);
@@ -169,18 +180,18 @@ contract Batchs is NFT, Products {
     }
 
     // Get transaction information by id
-    function getTx(uint256 txId)
+    function getTx(bytes32 txId)
         public
         view
         returns (
-            bytes32 currentTx,
-            bytes32 previousTx,
+            uint256 batchId,
             address sender,
             string memory receiver,
-            uint256 time
+            uint256 time,
+            bytes32 previousTx
         )
     {
-        currentTx = _txs[txId]._currentTx;
+        batchId = _txs[txId]._batchId;
         previousTx = _txs[txId]._previousTx;
         sender = _txs[txId]._sender;
         receiver = _txs[txId]._receiver;
