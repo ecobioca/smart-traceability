@@ -8,16 +8,30 @@ Each batch created represents a token. The standard token used is the ERC1155 NF
 
 Each supplier can give permission to a list of managers' addresses to create and transact the batch, in addition to transferring it to other links in the chain.
 
-Install dependencies:
+### Install dependencies:
 
 ```shell
 yarn install
 ```
 
-Compile and run tests:
+### Compile and run tests:
 
 ```shell
 yarn hardhat coverage
+```
+
+### Deployment
+
+Deploy to Alfajores (Celo Testnet):
+
+```shell
+yarn hardhat run scripts/deploy.ts --network alfajores
+```
+
+Deploy to Celo Mainnet:
+
+```shell
+yarn hardhat run scripts/deploy.ts --network celo
 ```
 
 Deploy to Mumbai (Polygon Testnet):
