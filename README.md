@@ -25,25 +25,25 @@ yarn hardhat coverage
 Deploy to Alfajores (Celo Testnet):
 
 ```shell
-yarn hardhat run scripts/deploy.ts --network alfajores
+yarn hardhat deploy --network alfajores
 ```
 
 Deploy to Celo Mainnet:
 
 ```shell
-yarn hardhat run scripts/deploy.ts --network celo
+yarn hardhat deploy --network celo
 ```
 
 Deploy to Mumbai (Polygon Testnet):
 
 ```shell
-yarn hardhat run scripts/deploy.ts --network mumbai
+yarn hardhat deploy --network mumbai
 ```
 
 Deploy to Polygon Mainnet:
 
 ```shell
-yarn hardhat run scripts/deploy.ts --network polygon
+yarn hardhat deploy --network polygon
 ```
 
 Then, copy the deployment address and start using it in your client application!

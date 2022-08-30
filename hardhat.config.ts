@@ -6,8 +6,14 @@ import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
+import glob from 'glob';
+import path from 'path';
 
 dotenv.config();
+
+glob.sync('./tasks/**/*.ts').forEach(function (file) {
+  require(path.resolve(file));
+});
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
