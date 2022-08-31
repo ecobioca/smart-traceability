@@ -106,6 +106,7 @@ contract Suppliers is NFT {
         allowedManager(supplierId, managerAddr)
     {
         _allowedSuppliers[supplierId].managersAddrs.push(managerAddr);
+        delegate(_allowedSuppliers[supplierId].holderAddr, managerAddr);
     }
 
     function removeManager(uint256 supplierId, address managerAddr)
