@@ -1,6 +1,11 @@
 import { task } from "hardhat/config";
 
 task("deploy", "Full contract deploy", async (taskArgs, hre) => {
+
+  if(hre.network.name == 'hardhat') {
+    console.error("Please select a network");
+    return;
+  }
   
   // Call compile manually to make sure everything is compiled
   await hre.run('compile');
