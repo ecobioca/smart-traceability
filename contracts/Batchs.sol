@@ -39,7 +39,7 @@ contract Batchs is NFT, Products {
 
     modifier authorizedToAddBatch(uint256 productId, address managerAddr) {
         uint256 supplierId = getSupplierIdFromProduct(productId);
-        require(supplierId > 0, "Product does not exists");
+        require(supplierId > 0, "Product does not exist");
         validatePermission(supplierId, managerAddr);
         _;
     }
