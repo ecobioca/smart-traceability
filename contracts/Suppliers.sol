@@ -46,6 +46,14 @@ contract Suppliers is NFT {
         _;
     }
 
+    event NewSupplier(uint256 id);
+
+    event NewManager(uint256 supplierId, address managerAddr);
+
+    event RemovedSupplier(uint256 id);
+
+    event RemovedManager(uint256 supplierId, address managerAddr);
+
     function getSupplier(uint256 id) public view returns (Supplier memory) {
         return _allowedSuppliers[id];
     }
@@ -69,9 +77,11 @@ contract Suppliers is NFT {
             true
         );
         _holderAddresses[holderAddr] = true;
+        emit NewSupplier(_numberOfUsers.current());
         for (uint256 i = 0; i < managersAddrs.length; i++) {
             if (holderAddr != managersAddrs[i]) {
                 delegate(holderAddr, managersAddrs[i]);
+                emit NewManager(_numberOfUsers.current(), managersAddrs[i]);
             }
         }
     }
@@ -81,6 +91,7 @@ contract Suppliers is NFT {
         allowedSupplier(supplierId)
     {
         delete _allowedSuppliers[supplierId];
+        emit RemovedSupplier(supplierId);
     }
 
     function getSupplierHolder(uint256 supplierId)
@@ -107,6 +118,7 @@ contract Suppliers is NFT {
     {
         _allowedSuppliers[supplierId].managersAddrs.push(managerAddr);
         delegate(_allowedSuppliers[supplierId].holderAddr, managerAddr);
+        emit NewManager(supplierId, managerAddr);
     }
 
     function removeManager(uint256 supplierId, address managerAddr)
@@ -137,9 +149,10 @@ contract Suppliers is NFT {
         }
 
         _allowedSuppliers[supplierId].managersAddrs.pop();
+        emit RemovedManager(supplierId, managerAddr);
     }
 
-    function _doSafeHolderAcceptanceCheck (address account) private view {
+    function _doSafeHolderAcceptanceCheck(address account) private view {
         if (account.code.length > 0) {
             // Account is a contract
 
