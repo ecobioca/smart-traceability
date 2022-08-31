@@ -59,6 +59,7 @@ contract Suppliers is NFT {
     ) internal {
         require(managersAddrs.length >= 1, "Invalid zero managersAddrs");
         require(!_holderAddresses[holderAddr], "Holder address already exists");
+        _doSafeHolderAcceptanceCheck(holderAddr);
         _numberOfUsers.increment();
         _allowedSuppliers[_numberOfUsers.current()] = Supplier(
             metadataUri,
@@ -67,6 +68,7 @@ contract Suppliers is NFT {
             role,
             true
         );
+        _holderAddresses[holderAddr] = true;
         for (uint256 i = 0; i < managersAddrs.length; i++) {
             if (holderAddr != managersAddrs[i]) {
                 delegate(holderAddr, managersAddrs[i]);
@@ -81,7 +83,11 @@ contract Suppliers is NFT {
         delete _allowedSuppliers[supplierId];
     }
 
-    function getSupplierHolder(uint256 supplierId) public view returns (address holderAddress) {
+    function getSupplierHolder(uint256 supplierId)
+        public
+        view
+        returns (address holderAddress)
+    {
         holderAddress = _allowedSuppliers[supplierId].holderAddr;
     }
 
@@ -130,5 +136,28 @@ contract Suppliers is NFT {
         }
 
         _allowedSuppliers[supplierId].managersAddrs.pop();
+    }
+
+    function _doSafeHolderAcceptanceCheck (address account) private view {
+        if (account.code.length > 0) {
+            // Account is a contract
+
+            // External call to contract asking for the supplier address
+            (bool success, bytes memory data) = account.staticcall(
+                abi.encodeWithSignature("supplier()")
+            );
+
+            if (success) {
+                // Contract returned the supplier address
+                address supplierAddress = abi.decode(data, (address));
+                if (supplierAddress != address(this)) {
+                    // Contract returned a different supplier address
+                    revert("Invalid supplier in holder");
+                }
+            } else {
+                // Contract did not return the supplier address
+                revert("Holder not implements supplier");
+            }
+        }
     }
 }
