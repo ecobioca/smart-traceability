@@ -1,5 +1,5 @@
 {
-  "name": "nft-minter",
+  "name": "smart-traceability",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.6",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",
