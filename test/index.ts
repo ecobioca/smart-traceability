@@ -43,19 +43,17 @@ describe("** Admin: add supplier", function () {
 describe("** Add product", function () {
   it("Should create new product", async function () {
     const supplierId = 1;
-    const productCode: string = "0000000000000";
     const metadata: string =
       "bafybei8nsoufr2renqzsh347n1x54wcubt5lgkeivez63xvjvplfwhtpym";
 
     const receipt = await contract.addProduct(
       supplierId,
-      productCode,
       metadata
     );
     await receipt.wait();
 
     // Get product info, first product id is always 1 from counter
-    const { metadataUri } = await contract.getProductOfId(1);
+    const { metadataUri } = await contract.getProduct(1);
     expect(metadataUri).to.be.equal(metadata);
   });
 });
