@@ -5,10 +5,9 @@ import "./Suppliers.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract Admin is Suppliers {
-
     using Counters for Counters.Counter;
     Counters.Counter private _numberOfAdmins;
-    
+
     mapping(address => bool) private _adminAddrs;
 
     modifier onlyAdmin() {
@@ -29,11 +28,15 @@ contract Admin is Suppliers {
         delete _adminAddrs[addr];
     }
 
-    function addSupplier(string memory metadataUri, address[] memory managersAddrs, address tokenHolderAddr, Role role) external onlyAdmin {
-        _addSupplier(metadataUri, managersAddrs, tokenHolderAddr, role);
+    function addSupplier(
+        string memory metadataUri,
+        address[] memory managersAddrs,
+        Role role
+    ) external onlyAdmin {
+        _addSupplier(metadataUri, managersAddrs, role);
     }
 
     function removeSupplier(uint256 supplierId) external {
-         _removeSupplier(supplierId);
+        _removeSupplier(supplierId);
     }
 }

@@ -18,13 +18,11 @@ contract Suppliers is NFT {
     struct Supplier {
         string metadataUri;
         address[] managersAddrs;
-        address holderAddr;
         Role role;
         bool exists;
     }
 
     mapping(uint256 => Supplier) private _allowedSuppliers;
-    mapping(address => bool) private _holderAddresses;
 
     modifier allowedSupplier(uint256 supplierId) {
         require(_allowedSuppliers[supplierId].exists, "Supplier not allowed");
@@ -62,27 +60,19 @@ contract Suppliers is NFT {
     function _addSupplier(
         string memory metadataUri,
         address[] memory managersAddrs,
-        address holderAddr,
         Role role
     ) internal {
         require(managersAddrs.length >= 1, "Invalid zero managersAddrs");
-        require(!_holderAddresses[holderAddr], "Holder address already exists");
-        _doSafeHolderAcceptanceCheck(holderAddr);
         _numberOfUsers.increment();
         _allowedSuppliers[_numberOfUsers.current()] = Supplier(
             metadataUri,
             managersAddrs,
-            holderAddr,
             role,
             true
         );
-        _holderAddresses[holderAddr] = true;
         emit NewSupplier(_numberOfUsers.current());
         for (uint256 i = 0; i < managersAddrs.length; i++) {
-            if (holderAddr != managersAddrs[i]) {
-                delegate(holderAddr, managersAddrs[i]);
-                emit NewManager(_numberOfUsers.current(), managersAddrs[i]);
-            }
+            emit NewManager(_numberOfUsers.current(), managersAddrs[i]);
         }
     }
 
@@ -92,14 +82,6 @@ contract Suppliers is NFT {
     {
         delete _allowedSuppliers[supplierId];
         emit RemovedSupplier(supplierId);
-    }
-
-    function getSupplierHolder(uint256 supplierId)
-        public
-        view
-        returns (address holderAddress)
-    {
-        holderAddress = _allowedSuppliers[supplierId].holderAddr;
     }
 
     function getManagers(uint256 supplierId)
@@ -117,7 +99,6 @@ contract Suppliers is NFT {
         allowedManager(supplierId, managerAddr)
     {
         _allowedSuppliers[supplierId].managersAddrs.push(managerAddr);
-        delegate(_allowedSuppliers[supplierId].holderAddr, managerAddr);
         emit NewManager(supplierId, managerAddr);
     }
 
@@ -150,28 +131,5 @@ contract Suppliers is NFT {
 
         _allowedSuppliers[supplierId].managersAddrs.pop();
         emit RemovedManager(supplierId, managerAddr);
-    }
-
-    function _doSafeHolderAcceptanceCheck(address account) private view {
-        if (account.code.length > 0) {
-            // Account is a contract
-
-            // External call to contract asking for the supplier address
-            (bool success, bytes memory data) = account.staticcall(
-                abi.encodeWithSignature("supplier()")
-            );
-
-            if (success) {
-                // Contract returned the supplier address
-                address supplierAddress = abi.decode(data, (address));
-                if (supplierAddress != address(this)) {
-                    // Contract returned a different supplier address
-                    revert("Invalid supplier in holder");
-                }
-            } else {
-                // Contract did not return the supplier address
-                revert("Holder not implements supplier");
-            }
-        }
     }
 }
