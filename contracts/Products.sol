@@ -19,6 +19,9 @@ contract Products is Suppliers {
 
     mapping(uint256 => Product) private _products;
 
+    // Define event
+    event NewProduct(uint256 id);
+
     // Register product information
     function addProduct(
         uint256 supplierId,
@@ -31,6 +34,7 @@ contract Products is Suppliers {
         _numberOfProducts.increment();
         uint256 productId = _numberOfProducts.current();
         _products[productId] = Product(supplierId, metadataUri);
+        emit NewProduct(productId);
     }
 
     // Get product information by id
