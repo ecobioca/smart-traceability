@@ -6,12 +6,12 @@ import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
-import glob from 'glob';
-import path from 'path';
+import glob from "glob";
+import path from "path";
 
 dotenv.config();
 
-glob.sync('./tasks/**/*.ts').forEach(function (file) {
+glob.sync("./tasks/**/*.ts").forEach(function (file) {
   require(path.resolve(file));
 });
 

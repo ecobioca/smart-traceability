@@ -5,15 +5,13 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 contract NFT is ERC1155 {
-
     // Mapping tokens supply,
     mapping(uint256 => uint256) private _supply;
 
     // Stores URI list of tokens
     mapping(uint256 => string) private _tokenURIs;
 
-    constructor() ERC1155("") {
-    }
+    constructor() ERC1155("") {}
 
     /**
      * Simplifies single token transfer removing `from` and `data`.

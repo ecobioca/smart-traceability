@@ -15,7 +15,6 @@ contract Batchs is NFT, Products {
         uint256 _batchId;
         address _sender;
         string _receiver;
-        uint256 _time;
         bytes32 _previousTx;
     }
 
@@ -35,7 +34,7 @@ contract Batchs is NFT, Products {
 
     mapping(uint256 => Batch) private _batchs;
 
-    event NewTx (bytes32 txId);
+    event NewTx(bytes32 txId);
 
     modifier authorizedToAddBatch(uint256 productId, address managerAddr) {
         uint256 supplierId = getSupplierIdFromProduct(productId);
@@ -79,7 +78,7 @@ contract Batchs is NFT, Products {
 
         for (uint256 i = 0; i < materialBatchIds.length; i++) {
             balances[i] = balanceOf(msg.sender, materialBatchIds[i]);
-            require(balances[i] >= 1, "no permission to transfer materials");
+            require(balances[i] >= 1, "unauthorized material tokens");
         }
 
         burnBatch(materialBatchIds, balances);
@@ -87,7 +86,7 @@ contract Batchs is NFT, Products {
         _numberOfBatchs.increment();
         uint256 batchId = _numberOfBatchs.current();
 
-        address receiver = getSupplierHolder(supplierId);
+        address receiver = getProductHolder(supplierId);
 
         mint(receiver, batchId, 1, metadataUri);
 
@@ -96,7 +95,6 @@ contract Batchs is NFT, Products {
         _batchs[batchId]._materialBatchIds = materialBatchIds;
         _batchs[batchId]._metadataUri = metadataUri;
         _batchs[batchId]._tokenId = batchId;
-        _batchs[batchId]._addTime = block.timestamp;
     }
 
     /*
@@ -119,8 +117,7 @@ contract Batchs is NFT, Products {
             string memory batchCode,
             uint256[] memory materialBatchIds,
             string memory metadataUri,
-            uint256 tokenId,
-            uint256 addTime
+            uint256 tokenId
         )
     {
         productId = _batchs[id]._productId;
@@ -128,7 +125,6 @@ contract Batchs is NFT, Products {
         materialBatchIds = _batchs[id]._materialBatchIds;
         metadataUri = _batchs[id]._metadataUri;
         tokenId = _batchs[id]._tokenId;
-        addTime = _batchs[id]._addTime;
     }
 
     // Get the number of batches
@@ -146,8 +142,10 @@ contract Batchs is NFT, Products {
         uint256 timestamp,
         bytes32 previousTx
     ) public authorizedToTransferBatch(batchId, msg.sender) {
-
-        require(previousTx == _batchs[batchId]._previousTx, "Invalid previous tx");
+        require(
+            previousTx == _batchs[batchId]._previousTx,
+            "Invalid previous tx"
+        );
 
         bytes32 currentTx = keccak256(
             abi.encodePacked(batchId, receiver, timestamp, previousTx)
@@ -156,13 +154,12 @@ contract Batchs is NFT, Products {
         _txs[currentTx]._batchId = batchId;
         _txs[currentTx]._sender = msg.sender;
         _txs[currentTx]._receiver = receiver;
-        _txs[currentTx]._time = block.timestamp;
         _txs[currentTx]._previousTx = previousTx;
 
         _batchs[batchId]._txs.push(currentTx);
         _batchs[batchId]._previousTx = currentTx;
 
-        emit NewTx (currentTx);
+        emit NewTx(currentTx);
 
         _numberOfTxs.increment();
     }
@@ -187,7 +184,6 @@ contract Batchs is NFT, Products {
             uint256 batchId,
             address sender,
             string memory receiver,
-            uint256 time,
             bytes32 previousTx
         )
     {
@@ -195,7 +191,6 @@ contract Batchs is NFT, Products {
         previousTx = _txs[txId]._previousTx;
         sender = _txs[txId]._sender;
         receiver = _txs[txId]._receiver;
-        time = _txs[txId]._time;
     }
 
     // Get the number of transactions

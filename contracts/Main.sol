@@ -7,7 +7,7 @@ import "./Batchs.sol";
 contract Traceability is Admin, Batchs {
     address public _owner;
 
-    constructor () {
+    constructor() {
         _owner = msg.sender;
     }
 }

@@ -25,17 +25,14 @@ describe("** Admin: add supplier", function () {
     const addSupplierTx = await contract.addSupplier(
       metadata,
       [ownerAddress],
-      ownerAddress,
       0
     );
     await addSupplierTx.wait();
 
     // Get Supplier info, first id is always 1 from counter
-    const { metadataUri, managersAddrs, holderAddr, role } =
-      await contract.getSupplier(1);
+    const { metadataUri, managersAddrs, role } = await contract.getSupplier(1);
     expect(metadataUri).to.be.equals(metadata);
     expect(managersAddrs[0]).to.be.equals(ownerAddress);
-    expect(holderAddr).to.be.equals(ownerAddress);
     expect(role).to.be.equals(0);
   });
 });
@@ -48,6 +45,7 @@ describe("** Add product", function () {
 
     const receipt = await contract.addProduct(
       supplierId,
+      ownerAddress,
       metadata
     );
     await receipt.wait();
