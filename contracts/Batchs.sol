@@ -21,11 +21,9 @@ contract Batchs is NFT, Products {
     // Define Batch model
     struct Batch {
         uint256 _productId;
-        string _batchCode;
         uint256[] _materialBatchIds;
         string _metadataUri;
         uint256 _tokenId;
-        uint256 _addTime;
         bytes32[] _txs;
         bytes32 _previousTx;
     }
@@ -70,7 +68,6 @@ contract Batchs is NFT, Products {
     function addBatch(
         uint256 supplierId,
         uint256 productId,
-        string memory batchCode,
         uint256[] memory materialBatchIds,
         string memory metadataUri
     ) public authorizedToAddBatch(productId, msg.sender) {
@@ -91,7 +88,6 @@ contract Batchs is NFT, Products {
         mint(receiver, batchId, 1, metadataUri);
 
         _batchs[batchId]._productId = productId;
-        _batchs[batchId]._batchCode = batchCode;
         _batchs[batchId]._materialBatchIds = materialBatchIds;
         _batchs[batchId]._metadataUri = metadataUri;
         _batchs[batchId]._tokenId = batchId;
@@ -114,14 +110,12 @@ contract Batchs is NFT, Products {
         view
         returns (
             uint256 productId,
-            string memory batchCode,
             uint256[] memory materialBatchIds,
             string memory metadataUri,
             uint256 tokenId
         )
     {
         productId = _batchs[id]._productId;
-        batchCode = _batchs[id]._batchCode;
         materialBatchIds = _batchs[id]._materialBatchIds;
         metadataUri = _batchs[id]._metadataUri;
         tokenId = _batchs[id]._tokenId;
