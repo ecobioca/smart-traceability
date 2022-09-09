@@ -48,9 +48,9 @@ contract Products is Suppliers {
     function getProduct(uint256 id)
         public
         view
-        returns (uint256 supplierId, string memory metadataUri)
+        returns (Product memory)
     {
-        return (_products[id]._supplierId, _products[id]._metadataUri);
+        return (_products[id]);
     }
 
     function getSupplierIdFromProduct(uint256 productId)
