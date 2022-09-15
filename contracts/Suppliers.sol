@@ -130,6 +130,7 @@ contract Suppliers is NFT {
         }
 
         _allowedSuppliers[supplierId].managersAddrs.pop();
+
         emit RemovedManager(supplierId, managerAddr);
     }
 }
