@@ -66,7 +66,6 @@ contract Batchs is NFT, Products {
      - metadata should be an IPFS content identifier (CID)
     */
     function addBatch(
-        uint256 supplierId,
         uint256 productId,
         uint256[] memory materialBatchIds,
         string memory metadataUri
@@ -83,7 +82,7 @@ contract Batchs is NFT, Products {
         _numberOfBatchs.increment();
         uint256 batchId = _numberOfBatchs.current();
 
-        address receiver = getProductHolder(supplierId);
+        address receiver = getProductHolder(productId);
 
         mint(receiver, batchId, 1, metadataUri);
 
@@ -91,17 +90,6 @@ contract Batchs is NFT, Products {
         _batchs[batchId]._materialBatchIds = materialBatchIds;
         _batchs[batchId]._metadataUri = metadataUri;
         _batchs[batchId]._tokenId = batchId;
-    }
-
-    /*
-     - Allows owners / admins of a batch to transfer it to another address
-     - ERC1155 will secure the permissions.
-    */
-    function transferBatch(uint256 id, address to)
-        public
-        authorizedToTransferBatch(id, msg.sender)
-    {
-        transfer(to, _batchs[id]._tokenId, 1);
     }
 
     // Get batch information by id
@@ -124,6 +112,24 @@ contract Batchs is NFT, Products {
     // Get the number of batches
     function getNumberOfBatchs() public view returns (uint256 numberOfBatchs) {
         numberOfBatchs = _numberOfBatchs.current();
+    }
+
+    /*
+     - Allows owners / admins of a batch to transfer it to another address
+     - ERC1155 will secure the permissions.
+    */
+    function transferBatch(uint256 id, address to)
+        public
+        authorizedToTransferBatch(id, msg.sender)
+    {
+        address from = getProductHolder(_batchs[id]._productId);
+
+        // Grant token transfer rights to manager
+        if (!isApprovedForAll(from, msg.sender)) {
+            _setApprovalForAll(from, msg.sender, true);
+        }
+
+        safeTransferFrom({from: from, to: to, id: id, amount: 1, data: "0x"});
     }
 
     /*
@@ -167,7 +173,7 @@ contract Batchs is NFT, Products {
         bytes32 previousTx
     ) public authorizedToTransferBatch(batchId, msg.sender) {
         addTx(batchId, receiver, timestamp, previousTx);
-        transfer(receiverAddress, 1, 1);
+        transferBatch(batchId, receiverAddress);
     }
 
     // Get transaction information by id
