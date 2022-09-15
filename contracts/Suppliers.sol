@@ -16,7 +16,7 @@ contract Suppliers is NFT {
     }
 
     struct Supplier {
-        string metadataUri;
+        string metadataURI;
         address[] managersAddrs;
         Role role;
         bool exists;
@@ -58,14 +58,14 @@ contract Suppliers is NFT {
 
     // Add user to authorization list
     function _addSupplier(
-        string memory metadataUri,
+        string memory metadataURI,
         address[] memory managersAddrs,
         Role role
     ) internal {
         require(managersAddrs.length >= 1, "Invalid zero managersAddrs");
         _numberOfUsers.increment();
         _allowedSuppliers[_numberOfUsers.current()] = Supplier(
-            metadataUri,
+            metadataURI,
             managersAddrs,
             role,
             true

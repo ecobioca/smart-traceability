@@ -29,11 +29,11 @@ contract Admin is Suppliers {
     }
 
     function addSupplier(
-        string memory metadataUri,
+        string memory metadataURI,
         address[] memory managersAddrs,
         Role role
     ) external onlyAdmin {
-        _addSupplier(metadataUri, managersAddrs, role);
+        _addSupplier(metadataURI, managersAddrs, role);
     }
 
     function removeSupplier(uint256 supplierId) external {

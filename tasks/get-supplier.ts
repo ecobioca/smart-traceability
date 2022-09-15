@@ -23,7 +23,7 @@ task("get-supplier", "Get supplier by id")
     }
 
     console.log(
-      `id: ${taskArgs.supplier}\nmetadata: ${supplier.metadataUri}\nmanagers: ${
+      `id: ${taskArgs.supplier}\nmetadata: ${supplier.metadataURI}\nmanagers: ${
         supplier.managersAddrs
       }\nrole: ${Roles[supplier.role]}`
     );

@@ -34,8 +34,8 @@ describe("** Admin: add supplier", function () {
     await addSupplierTx.wait();
 
     // Get Supplier info, first id is always 1 from counter
-    const { metadataUri, managersAddrs, role } = await contract.getSupplier(1);
-    expect(metadataUri).to.be.equals(metadata);
+    const { metadataURI, managersAddrs, role } = await contract.getSupplier(1);
+    expect(metadataURI).to.be.equals(metadata);
     expect(managersAddrs[0]).to.be.equals(ownerAddress);
     expect(role).to.be.equals(0);
   });
@@ -51,8 +51,8 @@ describe("** Add product", function () {
     await receipt.wait();
 
     // Get product info, first product id is always 1 from counter
-    const { metadataUri } = await contract.getProduct(1);
-    expect(metadataUri).to.be.equal(metadata);
+    const { metadataURI } = await contract.getProduct(1);
+    expect(metadataURI).to.be.equal(metadata);
   });
 });
 
@@ -75,9 +75,9 @@ describe("** Add batch", function () {
     await receipt.wait();
 
     // Get token id, first batch id is always 1 from counter
-    const { metadataUri } = await contract.getBatch(1);
+    const { metadataURI } = await contract.getBatch(1);
 
-    expect(metadataUri).to.be.equal(metadata);
+    expect(metadataURI).to.be.equal(metadata);
   });
 });
 

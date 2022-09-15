@@ -22,7 +22,7 @@ contract Batches is NFT, Products {
     struct Batch {
         uint256 _productId;
         uint256[] _materialBatchIds;
-        string _metadataUri;
+        string _metadataURI;
         uint256 _tokenId;
         bytes32[] _txs;
         bytes32 _previousTx;
@@ -68,7 +68,7 @@ contract Batches is NFT, Products {
     function addBatch(
         uint256 productId,
         uint256[] memory materialBatchIds,
-        string memory metadataUri
+        string memory metadataURI
     ) public authorizedToAddBatch(productId, msg.sender) {
         uint256[] memory balances = new uint256[](materialBatchIds.length);
 
@@ -84,11 +84,11 @@ contract Batches is NFT, Products {
 
         address receiver = getProductHolder(productId);
 
-        mint(receiver, batchId, 1, metadataUri);
+        mint(receiver, batchId, 1, metadataURI);
 
         _batches[batchId]._productId = productId;
         _batches[batchId]._materialBatchIds = materialBatchIds;
-        _batches[batchId]._metadataUri = metadataUri;
+        _batches[batchId]._metadataURI = metadataURI;
         _batches[batchId]._tokenId = batchId;
     }
 
@@ -99,13 +99,13 @@ contract Batches is NFT, Products {
         returns (
             uint256 productId,
             uint256[] memory materialBatchIds,
-            string memory metadataUri,
+            string memory metadataURI,
             uint256 tokenId
         )
     {
         productId = _batches[id]._productId;
         materialBatchIds = _batches[id]._materialBatchIds;
-        metadataUri = _batches[id]._metadataUri;
+        metadataURI = _batches[id]._metadataURI;
         tokenId = _batches[id]._tokenId;
     }
 

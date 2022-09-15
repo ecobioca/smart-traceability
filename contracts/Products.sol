@@ -15,7 +15,7 @@ contract Products is Suppliers {
     struct Product {
         uint256 supplierId;
         address holderAddr;
-        string metadataUri;
+        string metadataURI;
     }
 
     mapping(uint256 => Product) private _products;
@@ -29,7 +29,7 @@ contract Products is Suppliers {
     function addProduct(
         uint256 supplierId,
         address holderAddr,
-        string memory metadataUri
+        string memory metadataURI
     )
         public
         allowedSupplier(supplierId)
@@ -40,7 +40,7 @@ contract Products is Suppliers {
         _holderAddresses[holderAddr] = true;
         _numberOfProducts.increment();
         uint256 productId = _numberOfProducts.current();
-        _products[productId] = Product(supplierId, holderAddr, metadataUri);
+        _products[productId] = Product(supplierId, holderAddr, metadataURI);
         emit NewProduct(productId);
 
         // Grant token transfer rights to manager
