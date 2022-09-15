@@ -1,9 +1,13 @@
 import { expect } from "chai";
+import { Contract } from "ethers";
+import { randomBytes } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 
-let ownerAddress: any;
-let contract: any;
+let ownerAddress: string;
+let contract: Contract;
 let previousTx: string;
+const receiverAddress: string = new ethers.Wallet(randomBytes(32)).address;
+const holderAddr = new ethers.Wallet(randomBytes(32)).address;
 
 describe("** Deploy contract", function () {
   it("Should wait for deployment", async function () {
@@ -20,7 +24,7 @@ describe("** Deploy contract", function () {
 describe("** Admin: add supplier", function () {
   it("Should add new supplier to contract", async function () {
     const metadata =
-      "bafybei8nsoufr2renqzsh347n1x54wcubt5lgkeivez63xvjvplfwhtpym";
+      "ipfs://bafybei8nsoufr2renqzsh347n1x54wcubt5lgkeivez63xvjvplfwhtpym/metadata.json";
 
     const addSupplierTx = await contract.addSupplier(
       metadata,
@@ -41,13 +45,9 @@ describe("** Add product", function () {
   it("Should create new product", async function () {
     const supplierId = 1;
     const metadata: string =
-      "bafybei8nsoufr2renqzsh347n1x54wcubt5lgkeivez63xvjvplfwhtpym";
+      "ipfs://bafybei8nsoufr2renqzsh347n1x54wcubt5lgkeivez63xvjvplfwhtpym/metadata.json";
 
-    const receipt = await contract.addProduct(
-      supplierId,
-      ownerAddress,
-      metadata
-    );
+    const receipt = await contract.addProduct(supplierId, holderAddr, metadata);
     await receipt.wait();
 
     // Get product info, first product id is always 1 from counter
@@ -59,18 +59,14 @@ describe("** Add product", function () {
 describe("** Add batch", function () {
   it("Should create new batch", async function () {
     // Define NFT data
-    const supplierId: number = 1;
     const productId: number = 1;
-    const batchCode: string = "202003";
     const materialBatchIds: number[] = [];
     const metadata: string =
-      "bafybei8nsoufr2renqzsh347n1x54wcubt5lgkeivez63xvjvplfwhtpym";
+      "ipfs://bafybei8nsoufr2renqzsh347n1x54wcubt5lgkeivez63xvjvplfwhtpym/metadata.json";
 
     // Mint single NFT
     const receipt = await contract.addBatch(
-      supplierId,
       productId,
-      batchCode,
       materialBatchIds,
       metadata
     );
@@ -90,8 +86,7 @@ describe("** Add tx to batch", function () {
     const batchId = 1;
     const receiver = "Eval Transport LTDA";
     const timestamp = Date.now();
-    const previous =
-      "0x0000000000000000000000000000000000000000000000000000000000000000";
+    const previous = "0x".padEnd(66, "0");
 
     const receipt = await contract.addTx(
       batchId,
@@ -121,7 +116,6 @@ describe("** Add tx to batch and transfer", function () {
   it("Should add new tx to batch and transfer it", async function () {
     const batchId = 1;
     const receiver = "Choco Industry LTDA";
-    const receiverAddress = "0x1Ef1d032F1c56494d4668E5B01d21e1AB63b4690";
     const timestamp = Date.now();
 
     const receipt = await contract.addTxAndTransfer(
@@ -141,7 +135,6 @@ describe("** Add tx to batch and transfer", function () {
 
 describe("** Get receiver token balance", function () {
   it("Should found new token in the receiver balance", async function () {
-    const receiverAddress = "0x1Ef1d032F1c56494d4668E5B01d21e1AB63b4690";
     const tokenId = 1;
 
     const balance = await contract.balanceOf(receiverAddress, tokenId);

@@ -1,5 +1,10 @@
 {
   "name": "smart-traceability",
+  "scripts": {
+    "test": "yarn hardhat test",
+    "compile": "yarn hardhat compile",
+    "deploy": "yarn hardhat deploy"
+  },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.6",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",
