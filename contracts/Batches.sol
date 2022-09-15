@@ -5,9 +5,9 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "./Tokens.sol";
 import "./Products.sol";
 
-contract Batchs is NFT, Products {
+contract Batches is NFT, Products {
     using Counters for Counters.Counter;
-    Counters.Counter private _numberOfBatchs;
+    Counters.Counter private _numberOfBatches;
     Counters.Counter private _numberOfTxs;
 
     // Define Tx model
@@ -30,7 +30,7 @@ contract Batchs is NFT, Products {
 
     mapping(bytes32 => Tx) private _txs;
 
-    mapping(uint256 => Batch) private _batchs;
+    mapping(uint256 => Batch) private _batches;
 
     event NewTx(bytes32 txId);
 
@@ -43,7 +43,7 @@ contract Batchs is NFT, Products {
 
     modifier authorizedToTransferBatch(uint256 batchId, address managerAddr) {
         uint256 supplierId = getSupplierIdFromProduct(
-            _batchs[batchId]._productId
+            _batches[batchId]._productId
         );
         validatePermission(supplierId, managerAddr);
         _;
@@ -79,17 +79,17 @@ contract Batchs is NFT, Products {
 
         burnBatch(materialBatchIds, balances);
 
-        _numberOfBatchs.increment();
-        uint256 batchId = _numberOfBatchs.current();
+        _numberOfBatches.increment();
+        uint256 batchId = _numberOfBatches.current();
 
         address receiver = getProductHolder(productId);
 
         mint(receiver, batchId, 1, metadataUri);
 
-        _batchs[batchId]._productId = productId;
-        _batchs[batchId]._materialBatchIds = materialBatchIds;
-        _batchs[batchId]._metadataUri = metadataUri;
-        _batchs[batchId]._tokenId = batchId;
+        _batches[batchId]._productId = productId;
+        _batches[batchId]._materialBatchIds = materialBatchIds;
+        _batches[batchId]._metadataUri = metadataUri;
+        _batches[batchId]._tokenId = batchId;
     }
 
     // Get batch information by id
@@ -103,15 +103,15 @@ contract Batchs is NFT, Products {
             uint256 tokenId
         )
     {
-        productId = _batchs[id]._productId;
-        materialBatchIds = _batchs[id]._materialBatchIds;
-        metadataUri = _batchs[id]._metadataUri;
-        tokenId = _batchs[id]._tokenId;
+        productId = _batches[id]._productId;
+        materialBatchIds = _batches[id]._materialBatchIds;
+        metadataUri = _batches[id]._metadataUri;
+        tokenId = _batches[id]._tokenId;
     }
 
     // Get the number of batches
-    function getNumberOfBatchs() public view returns (uint256 numberOfBatchs) {
-        numberOfBatchs = _numberOfBatchs.current();
+    function getNumberOfBatches() public view returns (uint256 numberOfBatches) {
+        numberOfBatches = _numberOfBatches.current();
     }
 
     /*
@@ -122,7 +122,7 @@ contract Batchs is NFT, Products {
         public
         authorizedToTransferBatch(id, msg.sender)
     {
-        address from = getProductHolder(_batchs[id]._productId);
+        address from = getProductHolder(_batches[id]._productId);
 
         // Grant token transfer rights to manager
         if (!isApprovedForAll(from, msg.sender)) {
@@ -143,7 +143,7 @@ contract Batchs is NFT, Products {
         bytes32 previousTx
     ) public authorizedToTransferBatch(batchId, msg.sender) {
         require(
-            previousTx == _batchs[batchId]._previousTx,
+            previousTx == _batches[batchId]._previousTx,
             "Invalid previous tx"
         );
 
@@ -156,8 +156,8 @@ contract Batchs is NFT, Products {
         _txs[currentTx]._receiver = receiver;
         _txs[currentTx]._previousTx = previousTx;
 
-        _batchs[batchId]._txs.push(currentTx);
-        _batchs[batchId]._previousTx = currentTx;
+        _batches[batchId]._txs.push(currentTx);
+        _batches[batchId]._previousTx = currentTx;
 
         emit NewTx(currentTx);
 
