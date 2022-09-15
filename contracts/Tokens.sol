@@ -14,46 +14,11 @@ contract NFT is ERC1155 {
     constructor() ERC1155("") {}
 
     /**
-     * Simplifies single token transfer removing `from` and `data`.
-     */
-    function transfer(
-        address to,
-        uint256 id,
-        uint256 amount
-    ) internal {
-        safeTransferFrom({
-            from: msg.sender,
-            to: to,
-            id: id,
-            amount: amount,
-            data: "0x"
-        });
-    }
-
-    /**
-     * Simplifies token batch transfer.
-     */
-    function batchTransfer(
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts
-    ) external {
-        safeBatchTransferFrom({
-            from: msg.sender,
-            to: to,
-            ids: ids,
-            amounts: amounts,
-            data: "0x"
-        });
-    }
-
-    /**
      * Gives the contract owner the right to create new `amount` of tokens and assigns them to `to`.
      * The token id starts at 1 and automatically increases as new creations are made
      *
-     * Requirements:
-     *
-     * - `cid` is a content identifier / cryptographic hash used to point to material in IPFS.
+     * Recommendations for metadataURI:
+     * - Store metadata permanently and decentrally with IPFS.
      * - For each file that you uploaded, prepare an IPFS URI of the form ipfs://<CID>/metadata.json.
      * - Read more about it at: https://nft.storage/docs/how-to/mint-erc-1155/
      */
@@ -61,37 +26,32 @@ contract NFT is ERC1155 {
         address to,
         uint256 id,
         uint256 amount,
-        string memory cid
+        string memory metadataURI
     ) internal {
-        require(true, "Token id already exists");
         _mint(to, id, amount, "");
-        _tokenURIs[id] = string(
-            abi.encodePacked("ipfs://", cid, "/metadata.json")
-        );
+        _tokenURIs[id] = metadataURI;
     }
 
     /**
      * Gives the contract owner the right to create multiple `amounts` of different tokens and assigns them to `to`.
      * Requirements:
-        - `amounts` and `cids` must be numerical lists of the same lenght 
+        - `amounts` and `metadataURIs` must be numerical lists of the same lenght 
     */
     function mintBatch(
         address to,
         uint256[] memory ids,
         uint256[] memory amounts,
-        string[] memory cids
+        string[] memory metadataURIs
     ) internal {
         require(
-            amounts.length == cids.length,
-            "amounts and cids length mismatch"
+            amounts.length == metadataURIs.length,
+            "amounts and metadataURIs length mismatch"
         );
 
         _mintBatch(to, ids, amounts, "");
 
         for (uint256 i = 0; i < ids.length; i++) {
-            _tokenURIs[ids[i]] = string(
-                abi.encodePacked("ipfs://", cids[i], "/metadata.json")
-            );
+            _tokenURIs[ids[i]] = metadataURIs[i];
         }
     }
 
@@ -124,16 +84,6 @@ contract NFT is ERC1155 {
     // Returns the supply of a token
     function tokenSupply(uint256 id) public view returns (uint256) {
         return _supply[id];
-    }
-
-    // Allows the owner to grant transfer rights to another operator
-    function delegate(address owner, address operator) internal {
-        _setApprovalForAll(owner, operator, true);
-    }
-
-    // Allows the owner to cancel the transfer rights granted by another operator
-    function cancelDelegate(address owner, address operator) internal {
-        _setApprovalForAll(owner, operator, false);
     }
 
     /**
