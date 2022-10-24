@@ -1,10 +1,41 @@
 {
-  "name": "smart-traceability",
+  "name": "@ecobioca/smart-traceability",
   "scripts": {
     "test": "yarn hardhat test",
     "compile": "yarn hardhat compile",
     "deploy": "yarn hardhat deploy"
   },
+  "description": "This project enables traceability of supply chains using EVM smart contracts and comes with the smart contracts, a test for that contracts and a sample script that deploys that contract.",
+  "version": "1.0.2",
+  "main": "test/index.ts",
+  "directories": {
+    "test": "test"
+  },
+  "files": [
+    "/contracts/**/*.sol"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ecobioca/smart-traceability.git"
+  },
+  "keywords": [
+    "blockchain",
+    "traceability",
+    "ethereum",
+    "celo",
+    "solidity",
+    "smart",
+    "decentralized",
+    "bioca",
+    "ecobioca",
+    "hardhat"
+  ],
+  "author": "anarkrypto",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ecobioca/smart-traceability/issues"
+  },
+  "homepage": "https://github.com/ecobioca/smart-traceability#readme",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.6",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",
