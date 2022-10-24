@@ -6,7 +6,7 @@
     "deploy": "yarn hardhat deploy"
   },
   "description": "This project enables traceability of supply chains using EVM smart contracts and comes with the smart contracts, a test for that contracts and a sample script that deploys that contract.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "test/index.ts",
   "directories": {
     "test": "test"
