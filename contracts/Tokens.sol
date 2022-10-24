@@ -3,8 +3,11 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
 contract NFT is ERC1155 {
+    using Address for address;
+
     // Mapping tokens supply,
     mapping(uint256 => uint256) private _supply;
 
@@ -106,6 +109,28 @@ contract NFT is ERC1155 {
                 _supply[ids[i]] -= amounts[i];
             }
             if (_supply[ids[i]] == 0) _tokenURIs[ids[i]] = "";
+        }
+    }
+
+    /**
+     * Check if the contract implements ERC1155Receiver interface
+     * ( onERC1155Received and onERC1155BatchReceived )
+     */
+    function _IERC1155SupportCheck(address account) internal view {
+        if (account.isContract()) {
+            try
+                ERC1155(account).supportsInterface(
+                    type(IERC1155Receiver).interfaceId
+                )
+            returns (bool result) {
+                if (!result) {
+                    revert(
+                        "contract does not implement ERC1155Receiver interface"
+                    );
+                }
+            } catch {
+                revert("contract does not implement ERC1155Receiver interface");
+            }
         }
     }
 }

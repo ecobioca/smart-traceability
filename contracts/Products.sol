@@ -3,8 +3,11 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./Suppliers.sol";
+import "./utils/BatchesHolder.sol";
+import "./utils/BatchesOperator.sol";
 
 contract Products is Suppliers {
+    using Address for address;
     using Counters for Counters.Counter;
     Counters.Counter private _numberOfProducts;
 
@@ -15,15 +18,20 @@ contract Products is Suppliers {
     struct Product {
         uint256 supplierId;
         address holderAddr;
+        bool holderIsContract;
         string metadataURI;
     }
 
     mapping(uint256 => Product) private _products;
 
-    mapping(address => bool) private _holderAddresses;
+    mapping(address => bool) private _holderContracts;
 
-    // Define event
-    event NewProduct(uint256 id);
+    event NewProduct(
+        uint256 productId,
+        uint256 supplierId,
+        address holderAddr,
+        string metadataURI
+    );
 
     // Register product information
     function addProduct(
@@ -35,13 +43,19 @@ contract Products is Suppliers {
         allowedSupplier(supplierId)
         allowedManager(supplierId, msg.sender)
     {
-        require(!_holderAddresses[holderAddr], "Holder address already exists");
-        _doSafeHolderAcceptanceCheck(holderAddr);
-        _holderAddresses[holderAddr] = true;
+        bool holderIsContract = holderAddr.isContract();
+        if (holderIsContract) {
+            require(
+                !_holderContracts[holderAddr],
+                "Holder contract already exists"
+            );
+            _holderContracts[holderAddr] = true;
+            _doSafeHolderFullCheck(holderAddr);
+        }
         _numberOfProducts.increment();
         uint256 productId = _numberOfProducts.current();
-        _products[productId] = Product(supplierId, holderAddr, metadataURI);
-        emit NewProduct(productId);
+        _products[productId] = Product(supplierId, holderAddr, holderIsContract, metadataURI);
+        emit NewProduct(productId, supplierId, holderAddr, metadataURI);
 
         // Grant token transfer rights to manager
         if (msg.sender != holderAddr) {
@@ -86,26 +100,65 @@ contract Products is Suppliers {
         return products;
     }
 
-    function _doSafeHolderAcceptanceCheck(address account) private view {
-        if (account.code.length > 0) {
-            // Account is a contract
-
-            // External call to contract asking for the supplier address
-            (bool success, bytes memory data) = account.staticcall(
-                abi.encodeWithSignature("supplier()")
-            );
-
-            if (success) {
-                // Contract returned the supplier address
-                address supplierAddress = abi.decode(data, (address));
-                if (supplierAddress != address(this)) {
-                    // Contract returned a different supplier address
-                    revert("Invalid supplier in holder");
-                }
-            } else {
-                // Contract did not return the supplier address
-                revert("Holder not implements supplier");
+    /**
+     * Check if the contract implements BatchesHolder interface
+     */
+    function _IBatchesHolderSupportCheck(address account) internal view {
+        try
+            BatchesHolder(account).supportsInterface(
+                type(IBatchesHolder).interfaceId
+            )
+        returns (bool result) {
+            if (!result) {
+                revert(
+                    "Holder contract does not support BatchesHolder interface"
+                );
             }
+        } catch {
+            revert(
+                "Holder contract does not implement BatchesHolder interface"
+            );
         }
+    }
+
+    function _holderSupplierCheck(address account) public view {
+        // External call to contract asking for the supplier address
+        (bool success, bytes memory data) = account.staticcall(
+            abi.encodeWithSignature("getSupplier()")
+        );
+
+        // Check if the returned address is this contract supplier
+        require(
+            success && abi.decode(data, (address)) == address(this),
+            "Invalid supplier in holder"
+        );
+    }
+
+    /**
+     * Check if the contract implements BatchesHolder interface
+     */
+    function _IBatchesOperatorSupportCheck(address account) internal view {
+        try
+            BatchesOperator(account).supportsInterface(
+                type(IBatchesOperator).interfaceId
+            )
+        returns (bool result) {
+            if (!result) {
+                revert(
+                    "Holder contract does not support BatchesOperator interface"
+                );
+            }
+        } catch {
+            revert(
+                "Holder contract does not implement BatchesOperator interface"
+            );
+        }
+    }
+
+    function _doSafeHolderFullCheck(address account) public view {
+        _IERC1155SupportCheck(account);
+        _IBatchesHolderSupportCheck(account);
+        _holderSupplierCheck(account);
+        _IBatchesOperatorSupportCheck(account);
     }
 }
