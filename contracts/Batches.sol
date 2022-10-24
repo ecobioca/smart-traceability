@@ -7,32 +7,34 @@ import "./Products.sol";
 
 contract Batches is NFT, Products {
     using Counters for Counters.Counter;
-    Counters.Counter private _numberOfBatches;
-    Counters.Counter private _numberOfTxs;
+    Counters.Counter private batchesCounter;
+    Counters.Counter private txsCounter;
 
     // Define Tx model
     struct Tx {
-        uint256 _batchId;
-        address _sender;
-        string _receiver;
-        bytes32 _previousTx;
+        uint256 batchId;
+        address sender;
+        string receiver;
+        bytes32 previousTx;
     }
 
     // Define Batch model
     struct Batch {
-        uint256 _productId;
-        uint256[] _materialBatchIds;
-        string _metadataURI;
-        uint256 _tokenId;
-        bytes32[] _txs;
-        bytes32 _previousTx;
+        uint256 supplierId;
+        uint256 productId;
+        uint256[] materialBatchIds;
+        string metadataURI;
+        bytes32[] txs;
+        bytes32 previousTx;
     }
 
-    mapping(bytes32 => Tx) private _txs;
+    mapping(bytes32 => Tx) private txs;
 
-    mapping(uint256 => Batch) private _batches;
+    mapping(uint256 => Batch) private batches;
 
     event NewTx(bytes32 txId);
+
+    event NewBatch(uint256 tokenId, uint256 supplierId, uint256 productId, uint256[] materialIds, string metadataURI);
 
     modifier authorizedToAddBatch(uint256 productId, address managerAddr) {
         uint256 supplierId = getSupplierIdFromProduct(productId);
@@ -42,10 +44,7 @@ contract Batches is NFT, Products {
     }
 
     modifier authorizedToTransferBatch(uint256 batchId, address managerAddr) {
-        uint256 supplierId = getSupplierIdFromProduct(
-            _batches[batchId]._productId
-        );
-        validatePermission(supplierId, managerAddr);
+        validatePermission(batches[batchId].supplierId, managerAddr);
         _;
     }
 
@@ -63,7 +62,7 @@ contract Batches is NFT, Products {
      - Create a new token that represents the batch
      - Add production batch information
 
-     - metadata should be an IPFS content identifier (CID)
+     - metadata should be an IPFS uri (ipfs://<cid>/metadata.json)
     */
     function addBatch(
         uint256 productId,
@@ -79,39 +78,39 @@ contract Batches is NFT, Products {
 
         burnBatch(materialBatchIds, balances);
 
-        _numberOfBatches.increment();
-        uint256 batchId = _numberOfBatches.current();
+        batchesCounter.increment();
+        uint256 batchId = batchesCounter.current();
 
         address receiver = getProductHolder(productId);
 
         mint(receiver, batchId, 1, metadataURI);
 
-        _batches[batchId]._productId = productId;
-        _batches[batchId]._materialBatchIds = materialBatchIds;
-        _batches[batchId]._metadataURI = metadataURI;
-        _batches[batchId]._tokenId = batchId;
+        uint256 supplierId = getSupplierIdFromProduct(productId);
+
+        batches[batchId] = Batch(
+            supplierId,
+            productId,
+            materialBatchIds,
+            metadataURI,
+            new bytes32[](0),
+            bytes32(0)
+        );
+
+        emit NewBatch(batchId, supplierId, productId, materialBatchIds, metadataURI);
     }
 
     // Get batch information by id
     function getBatch(uint256 id)
         public
         view
-        returns (
-            uint256 productId,
-            uint256[] memory materialBatchIds,
-            string memory metadataURI,
-            uint256 tokenId
-        )
+        returns (Batch memory)
     {
-        productId = _batches[id]._productId;
-        materialBatchIds = _batches[id]._materialBatchIds;
-        metadataURI = _batches[id]._metadataURI;
-        tokenId = _batches[id]._tokenId;
+        return (batches[id]);
     }
 
     // Get the number of batches
     function getNumberOfBatches() public view returns (uint256 numberOfBatches) {
-        numberOfBatches = _numberOfBatches.current();
+        numberOfBatches = batchesCounter.current();
     }
 
     /*
@@ -122,7 +121,7 @@ contract Batches is NFT, Products {
         public
         authorizedToTransferBatch(id, msg.sender)
     {
-        address from = getProductHolder(_batches[id]._productId);
+        address from = getProductHolder(batches[id].productId);
 
         // Grant token transfer rights to manager
         if (!isApprovedForAll(from, msg.sender)) {
@@ -143,7 +142,7 @@ contract Batches is NFT, Products {
         bytes32 previousTx
     ) public authorizedToTransferBatch(batchId, msg.sender) {
         require(
-            previousTx == _batches[batchId]._previousTx,
+            previousTx == batches[batchId].previousTx,
             "Invalid previous tx"
         );
 
@@ -151,17 +150,17 @@ contract Batches is NFT, Products {
             abi.encodePacked(batchId, receiver, timestamp, previousTx)
         );
 
-        _txs[currentTx]._batchId = batchId;
-        _txs[currentTx]._sender = msg.sender;
-        _txs[currentTx]._receiver = receiver;
-        _txs[currentTx]._previousTx = previousTx;
+        txs[currentTx].batchId = batchId;
+        txs[currentTx].sender = msg.sender;
+        txs[currentTx].receiver = receiver;
+        txs[currentTx].previousTx = previousTx;
 
-        _batches[batchId]._txs.push(currentTx);
-        _batches[batchId]._previousTx = currentTx;
+        batches[batchId].txs.push(currentTx);
+        batches[batchId].previousTx = currentTx;
 
         emit NewTx(currentTx);
 
-        _numberOfTxs.increment();
+        txsCounter.increment();
     }
 
     // Update batch transactions
@@ -187,14 +186,14 @@ contract Batches is NFT, Products {
             bytes32 previousTx
         )
     {
-        batchId = _txs[txId]._batchId;
-        previousTx = _txs[txId]._previousTx;
-        sender = _txs[txId]._sender;
-        receiver = _txs[txId]._receiver;
+        batchId = txs[txId].batchId;
+        previousTx = txs[txId].previousTx;
+        sender = txs[txId].sender;
+        receiver = txs[txId].receiver;
     }
 
     // Get the number of transactions
     function getNumberOfTxs() public view returns (uint256 numberOfTxs) {
-        numberOfTxs = _numberOfTxs.current();
+        numberOfTxs = txsCounter.current();
     }
 }
