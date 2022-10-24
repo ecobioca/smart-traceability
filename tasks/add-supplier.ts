@@ -15,7 +15,6 @@ task("add-supplier", "Add new supplier")
     const tx = await contract.addSupplier(
       taskArgs.metadata,
       [taskArgs.manager],
-      taskArgs.holder,
       0,
       { from: owner.address }
     );
