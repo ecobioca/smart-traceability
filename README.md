@@ -48,23 +48,22 @@ yarn hardhat deploy --network polygon
 
 Then, copy the deployment address and start using it in your client application!
 
-
 ### Tasks
 
 #### Add Supplier
 
-Usage: 
+Usage:
 
 ```shell
-hardhat --network <NETWORK> add-supplier --contract <STRING> --holder <STRING> --manager <STRING> --metadata <STRING>
+yarn hardhat --network <NETWORK> add-supplier --contract <STRING> --holder <STRING> --manager <STRING> --metadata <STRING>
 ```
 
 OPTIONS:
 
-  - contract:   Contract address 
-  - holder:     Holder address, can be a contract
-  - manager:    Addresses of managers, separated by commas
-  - metadata:   Metadata IPFS hash
+- contract: Contract address
+- holder: Holder address, can be a contract
+- manager: Addresses of managers, separated by commas
+- metadata: Metadata IPFS hash
 
 Example:
 
@@ -77,16 +76,16 @@ Added supplier, Id: 1
 
 #### Get Supplier
 
-Usage: 
+Usage:
 
 ```shell
-hardhat --network <NETWORK> get-supplier --contract <STRING> --supplier <INT>
+yarn hardhat --network <NETWORK> get-supplier --contract <STRING> --supplier <INT>
 ```
 
 OPTIONS:
 
-  - contract:    Contract address 
-  - supplier:    Supplier Id 
+- contract: Contract address
+- supplier: Supplier Id
 
 Example:
 
@@ -99,6 +98,30 @@ metadata: bafybeif5i3ov3n7xjwdeg3gnreeoy7kmumsedu64qd5juzer7pmn47z3oi
 managers: 0xb10c1E57379aBbA9F54AdAD33681abe4F4Fb0faC
 holder: 0x7cE9254F2c643e2BFD5306361529Db622873A8D8
 role: Supplier
+```
+
+#### Add Product
+
+```shell
+yarn hardhat --network mumbai add-product --contract 0x5d7D5AEBFe64E72Bd571d24Fc2d8547A2E657cfC --supplier 1 --metadata bafybeiar26nqkdtiyrzbaxwcdm7zkr2o36xljqskdvg6z6ugwlmpkdhamy --holder 0x86F3828552e7bb1e27610A5228A48426FA8577A1
+```
+
+#### Get Product
+
+```shell
+yarn hardhat --network mumbai get-product --contract 0x5d7D5AEBFe64E72Bd571d24Fc2d8547A2E657cfC --id 1
+```
+
+#### Add Batch
+
+```shell
+yarn hardhat --network mumbai add-batch --contract 0x8a17A7bB33040E6FF8aF645b67d7154c1B241AeA --product 1 --metadata bafybeiar26nqkdtiyrzbaxwcdm7zkr2o36xljqskdvg6z6ugwlmpkdhamy
+```
+
+### Check Holder
+
+```shell
+yarn hardhat --network mumbai check-holder --contract 0x78fa80d25C59125847Ca43853B55eA08082d23cC --holder 0x78fa80d25C59125847Ca43853B55eA08082d23c1
 ```
 
 ### Contributing
