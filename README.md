@@ -22,18 +22,6 @@ yarn hardhat coverage
 
 ### Deployment
 
-Deploy to Alfajores (Celo Testnet):
-
-```shell
-yarn hardhat deploy --network alfajores
-```
-
-Deploy to Celo Mainnet:
-
-```shell
-yarn hardhat deploy --network celo
-```
-
 Deploy to Mumbai (Polygon Testnet):
 
 ```shell
@@ -68,7 +56,7 @@ OPTIONS:
 Example:
 
 ```shell
-yarn hardhat --network alfajores add-supplier --contract 0x5d7D5AEBFe64E72Bd571d24Fc2d8547A2E657cfC --metadata bafybeif5i3ov3n7xjwdeg3gnreeoy7kmumsedu64qd5juzer7pmn47z3oi --manager 0x208eAE2D4f048F35FD7974216f5fa409Dd70d2E1 --holder 0x7cE9254F2c643e2BFD5306361529Db622873A8D8
+yarn hardhat --network mumbai add-supplier --contract 0x5d7D5AEBFe64E72Bd571d24Fc2d8547A2E657cfC --metadata bafybeif5i3ov3n7xjwdeg3gnreeoy7kmumsedu64qd5juzer7pmn47z3oi --manager 0x208eAE2D4f048F35FD7974216f5fa409Dd70d2E1 --holder 0x7cE9254F2c643e2BFD5306361529Db622873A8D8
 
 # Response:
 Added supplier, Id: 1
@@ -90,7 +78,7 @@ OPTIONS:
 Example:
 
 ```shell
-yarn hardhat --network alfajores get-supplier --contract 0x5d7D5AEBFe64E72Bd571d24Fc2d8547A2E657cfC --supplier 1
+yarn hardhat --network mumbai get-supplier --contract 0x5d7D5AEBFe64E72Bd571d24Fc2d8547A2E657cfC --supplier 1
 
 # Response:
 id: 1
