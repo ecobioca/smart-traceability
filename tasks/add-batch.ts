@@ -5,14 +5,14 @@ task("add-batch", "Add new batch")
   .addParam("product", "Product Id")
   .addParam("metadata", "Metada IPFS hash")
   .addOptionalParam("materials", "Ids of token materials used")
-  .setAction(async (taskArgs, hre) => {
+  .setAction(async (taskArgs, { ethers }) => {
     console.log(taskArgs);
-    const contract = await hre.ethers.getContractAt(
+    const contract = await ethers.getContractAt(
       "Traceability",
       taskArgs.contract
     );
 
-    const [owner] = await hre.ethers.getSigners();
+    const [owner] = await ethers.getSigners();
 
     const tx = await contract.addBatch(
       taskArgs.product,
@@ -20,7 +20,11 @@ task("add-batch", "Add new batch")
       taskArgs.metadata,
       { from: owner.address }
     );
-    await tx.wait();
+    const receipt = await tx.wait();
 
-    console.log("Added batch");
+    const tokenId = receipt.events
+      .filter((e: any) => e.event === "NewBatch")[0]
+      ?.args.tokenId?.toString();
+
+    console.info("Added batch. Token Id:", tokenId || 'Not Found');
   });
