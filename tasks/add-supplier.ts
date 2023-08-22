@@ -22,7 +22,7 @@ task("add-supplier", "Add new supplier")
 
     const supplierId = receipt.events
       .filter((e: any) => e.event === "NewSupplier")[0]
-      .args.id.toString();
+      ?.args.id?.toString();
 
-    console.log("Added supplier, Id:", supplierId);
+    console.info("Added supplier, Id:", supplierId || 'Not Found');
   });
