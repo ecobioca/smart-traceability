@@ -10,11 +10,18 @@ Each supplier can give permission to a list of managers' addresses to create and
 
 ### Install dependencies:
 
+First, ensure you have:
+
+- Node.js v16. You can set it with [nvm](https://github.com/nvm-sh/nvm)
+- Yarn
+
+Then install packages:
+
 ```shell
 yarn install
 ```
 
-### Compile and run tests:
+### Compile contracts and run tests:
 
 ```shell
 yarn hardhat coverage
